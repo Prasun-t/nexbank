@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Welcome{% endblock %}
+{% block public_content %}
+
+<!-- HERO -->
+<section class="hero-section">
+  <div class="container position-relative" style="z-index:1;">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-badge"><i class="fas fa-shield-halved me-1"></i>Bank-Grade Security</div>
+        <h1 class="hero-title">Banking Crafted<br>for Those Who<br><span class="highlight">Demand More.</span></h1>
+        <p class="hero-subtitle">NexBank combines institutional-grade security with an elegant modern experience. Your wealth, managed with precision and care.</p>
+        <div class="hero-cta-group">
+          <a href="{{ url_for('register') }}" class="btn btn-hero-primary">Open Free Account</a>
+          <a href="{{ url_for('login') }}" class="btn btn-hero-outline">Sign In</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-val">$2B+</div>
+            <div class="hero-stat-label">Assets Managed</div>
+          </div>
+          <div>
+            <div class="hero-stat-val">500K+</div>
+            <div class="hero-stat-label">Members</div>
+          </div>
+          <div>
+            <div class="hero-stat-val">99.9%</div>
+            <div class="hero-stat-label">Uptime</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block text-center position-relative">
+        <!-- Decorative card visual -->
+        <div style="position:relative;display:inline-block;transform:perspective(900px) rotateY(-15deg) rotateX(5deg);">
+          <div style="width:320px;height:195px;border-radius:20px;background:linear-gradient(145deg,#0f2d5e,#1a4a9e);padding:24px;color:#fff;box-shadow:0 30px 80px rgba(11,31,58,0.5);position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:rgba(201,168,76,0.12);"></div>
+            <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.45);margin-bottom:28px;">Premium Account</div>
+            <div style="display:flex;gap:6px;margin-bottom:24px;">
+              <div style="width:34px;height:26px;border-radius:5px;background:linear-gradient(135deg,#c9a84c,#e2c97e);display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px;"><span style="background:rgba(255,255,255,0.3);border-radius:1px;"></span><span style="background:rgba(255,255,255,0.3);border-radius:1px;"></span><span style="background:rgba(255,255,255,0.3);border-radius:1px;"></span><span style="background:rgba(255,255,255,0.3);border-radius:1px;"></span></div>
+            </div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;letter-spacing:3px;color:rgba(255,255,255,0.6);">ACC ●●●● ●●●● 4892</div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:flex-end;">
+              <div>
+                <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;">Balance</div>
+                <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#fff;">$24,891.50</div>
+              </div>
+              <div style="font-size:1.8rem;opacity:0.2;"><i class="fab fa-cc-visa"></i></div>
+            </div>
+          </div>
+          <!-- Second card peeking behind -->
+          <div style="position:absolute;bottom:-20px;right:-20px;width:300px;height:180px;border-radius:20px;background:linear-gradient(145deg,#2d1e0a,#1c1208);opacity:0.7;z-index:-1;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="py-5" style="background:var(--cream);">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:600;margin-bottom:10px;">Why NexBank</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--navy);">Built for a Higher Standard</h2>
+      <hr style="width:50px;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));border:none;margin:16px auto 0;border-radius:2px;">
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card card border-0 h-100">
+          <div class="feature-icon" style="background:var(--navy);">
+            <i class="fas fa-shield-halved fa-lg" style="color:var(--gold-light);"></i>
+          </div>
+          <h5 style="font-weight:700;color:var(--navy);margin-bottom:10px;">Military-Grade Security</h5>
+          <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.7;">256-bit AES encryption, two-factor authentication, and real-time fraud monitoring protect your assets around the clock.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card card border-0 h-100">
+          <div class="feature-icon" style="background:var(--navy);">
+            <i class="fas fa-bolt fa-lg" style="color:var(--gold-light);"></i>
+          </div>
+          <h5 style="font-weight:700;color:var(--navy);margin-bottom:10px;">Instant Transfers</h5>
+          <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.7;">Send and receive money in seconds to any NexBank account, 24 hours a day, 365 days a year, with zero fees.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card card border-0 h-100">
+          <div class="feature-icon" style="background:var(--navy);">
+            <i class="fas fa-mobile-screen fa-lg" style="color:var(--gold-light);"></i>
+          </div>
+          <h5 style="font-weight:700;color:var(--navy);margin-bottom:10px;">Elegant Interface</h5>
+          <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.7;">A thoughtfully designed experience across all devices. Banking that feels as premium as it performs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3"><div class="stat-number">$2B+</div><div style="font-size:0.78rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Assets Managed</div></div>
+      <div class="col-6 col-md-3"><div class="stat-number">500K+</div><div style="font-size:0.78rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Customers</div></div>
+      <div class="col-6 col-md-3"><div class="stat-number">99.9%</div><div style="font-size:0.78rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Uptime</div></div>
+      <div class="col-6 col-md-3"><div class="stat-number">24/7</div><div style="font-size:0.78rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Support</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 text-center" style="background:var(--cream);">
+  <div class="container py-4">
+    <div style="max-width:560px;margin:0 auto;">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:600;margin-bottom:12px;">Get Started Today</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--navy);margin-bottom:12px;">Ready to bank smarter?</h2>
+      <p style="color:var(--text-muted);margin-bottom:28px;">Open your account in minutes. No paperwork, no waiting, no hidden fees.</p>
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg btn-submit px-5">Open Your Free Account</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:var(--navy);padding:32px 0;text-align:center;">
+  <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold-light);margin-bottom:8px;">NexBank</div>
+  <div style="font-size:0.78rem;color:rgba(255,255,255,0.3);">© 2025 NexBank Private Banking. All rights reserved.</div>
+</footer>
+
+{% endblock %}

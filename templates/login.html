@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Sign In{% endblock %}
+{% block public_content %}
+<div class="auth-bg">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-logo"><i class="fas fa-university"></i></div>
+      <div>
+        <div class="auth-brand-name">NexBank</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;">Private Banking</div>
+      </div>
+    </div>
+    <h2 class="auth-title">Welcome Back</h2>
+    <p class="auth-subtitle">Sign in to access your accounts and banking services.</p>
+
+    <form id="loginForm" action="{{ url_for('login') }}" method="POST" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-envelope" style="font-size:0.82rem;"></i></span>
+          <input type="email" name="email" class="form-control" placeholder="your@email.com" required autocomplete="email">
+        </div>
+        <div class="text-danger mt-1 d-none" style="font-size:0.78rem;" id="emailError">Please enter a valid email address.</div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-lock" style="font-size:0.82rem;"></i></span>
+          <input type="password" name="password" id="loginPassword" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+          <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+            <i class="fas fa-eye" style="font-size:0.8rem;"></i>
+          </button>
+        </div>
+        <div class="text-danger mt-1 d-none" style="font-size:0.78rem;" id="passwordError">Password is required.</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 btn-submit mb-3">
+        <i class="fas fa-arrow-right-to-bracket me-2"></i>Sign In to NexBank
+      </button>
+    </form>
+
+    <div class="text-center" style="padding-top:16px;border-top:1px solid var(--border);margin-top:4px;">
+      <span style="font-size:0.85rem;color:var(--text-muted);">New to NexBank?</span>
+      <a href="{{ url_for('register') }}" style="font-size:0.85rem;font-weight:600;color:var(--navy);text-decoration:none;margin-left:6px;">Open an account &rarr;</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

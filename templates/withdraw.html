@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Withdraw{% endblock %}
+{% block breadcrumb %}Withdraw Funds{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="page-header">
+      <h2><i class="fas fa-arrow-up me-3" style="color:var(--danger);font-size:1.4rem;"></i>Withdraw Funds</h2>
+      <hr class="gold-rule">
+      <p class="mt-2">Withdraw money from your NexBank account.</p>
+    </div>
+    <div class="card">
+      <div class="card-body p-4">
+        <form id="withdrawForm" action="{{ url_for('withdraw') }}" method="POST" novalidate>
+          <div class="mb-4">
+            <label class="form-label">Select Account</label>
+            <select name="account_id" id="withdrawAccount" class="form-select" required>
+              <option value="">-- Choose an account --</option>
+              {% for account in accounts %}
+              <option value="{{ account['id'] }}" data-balance="{{ account['balance'] }}">
+                {{ account['account_type']|capitalize }} ({{ account['account_number'] }}) &mdash; ${{ '{:,.2f}'.format(account['balance']) }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="balance-preview mb-4 d-none" id="balPreview">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="label">Available Balance</span>
+              <span class="value" id="currentBal">-</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="label">After Withdrawal</span>
+              <span class="value" id="afterBal">-</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Amount</label>
+            <div class="input-group amount-input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" name="amount" id="withdrawAmount" class="form-control" placeholder="0.00" min="0.01" step="0.01" required>
+            </div>
+            <div class="d-flex gap-2 mt-2 flex-wrap">
+              <button type="button" class="quick-amt" data-val="50">$50</button>
+              <button type="button" class="quick-amt" data-val="100">$100</button>
+              <button type="button" class="quick-amt" data-val="200">$200</button>
+              <button type="button" class="quick-amt" data-val="500">$500</button>
+            </div>
+            <div class="alert alert-danger py-2 mt-2 d-none" id="insufficientMsg" style="font-size:0.82rem;">
+              <i class="fas fa-exclamation-triangle me-1"></i>Insufficient funds in selected account.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Description <span style="text-transform:none;letter-spacing:0;font-size:0.78rem;font-weight:400;color:var(--text-muted);">(optional)</span></label>
+            <input type="text" name="description" class="form-control" placeholder="e.g. ATM, Bill payment..." maxlength="200">
+          </div>
+
+          <button type="submit" class="btn btn-danger w-100 btn-submit mb-2" id="submitBtn">
+            <i class="fas fa-check me-2"></i>Confirm Withdrawal
+          </button>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const accountSel = document.getElementById('withdrawAccount');
+const amountInput = document.getElementById('withdrawAmount');
+const submitBtn = document.getElementById('submitBtn');
+function updatePreview() {
+  const sel = accountSel.options[accountSel.selectedIndex];
+  const amount = parseFloat(amountInput.value) || 0;
+  const preview = document.getElementById('balPreview');
+  const insuf = document.getElementById('insufficientMsg');
+  if (sel && sel.dataset.balance !== undefined) {
+    const bal = parseFloat(sel.dataset.balance);
+    document.getElementById('currentBal').textContent = '$' + bal.toLocaleString('en-US',{minimumFractionDigits:2});
+    const after = bal - amount;
+    const afterEl = document.getElementById('afterBal');
+    afterEl.textContent = '$' + after.toLocaleString('en-US',{minimumFractionDigits:2});
+    afterEl.className = 'value ' + (after < 0 ? 'negative' : 'positive');
+    preview.classList.remove('d-none');
+    if (amount > 0 && amount > bal) { insuf.classList.remove('d-none'); submitBtn.disabled = true; }
+    else { insuf.classList.add('d-none'); submitBtn.disabled = false; }
+  }
+}
+accountSel.addEventListener('change', updatePreview);
+amountInput.addEventListener('input', updatePreview);
+document.querySelectorAll('.quick-amt').forEach(btn => {
+  btn.addEventListener('click', () => { amountInput.value = btn.dataset.val; updatePreview(); });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}Transfer{% endblock %}
+{% block breadcrumb %}Transfer Funds{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="page-header">
+      <h2><i class="fas fa-right-left me-3" style="color:var(--navy);font-size:1.4rem;"></i>Transfer Funds</h2>
+      <hr class="gold-rule">
+      <p class="mt-2">Send money to any NexBank account instantly.</p>
+    </div>
+    <div class="card">
+      <div class="card-body p-4">
+        <form id="transferForm" action="{{ url_for('transfer') }}" method="POST" novalidate>
+          <div class="mb-3">
+            <label class="form-label">From Account</label>
+            <select name="from_account_id" id="fromAccount" class="form-select" required>
+              <option value="">-- Select source account --</option>
+              {% for account in accounts %}
+              <option value="{{ account['id'] }}" data-balance="{{ account['balance'] }}" data-num="{{ account['account_number'] }}">
+                {{ account['account_type']|capitalize }} ({{ account['account_number'] }}) &mdash; ${{ '{:,.2f}'.format(account['balance']) }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Animated transfer arrow -->
+          <div class="text-center py-2" style="position:relative;">
+            <div class="transfer-flow">
+              <div class="transfer-flow-dot"></div>
+              <div class="transfer-flow-dot"></div>
+              <div class="transfer-flow-dot"></div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Recipient Account Number</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-hashtag" style="font-size:0.82rem;"></i></span>
+              <input type="text" name="recipient_account" id="recipientAccount" class="form-control font-monospace" placeholder="e.g. ACC1234567890" maxlength="20" required>
+              <button class="btn btn-outline-secondary" type="button" id="verifyBtn"><i class="fas fa-search me-1" style="font-size:0.8rem;"></i>Verify</button>
+            </div>
+            <div class="mt-2 d-none" id="recipientInfo">
+              <div style="font-size:0.78rem;color:var(--success);background:var(--success-bg);padding:6px 10px;border-radius:6px;border-left:3px solid var(--success);">
+                <i class="fas fa-check-circle me-1"></i>Account format valid
+              </div>
+            </div>
+            <div class="mt-2 d-none" id="recipientError">
+              <div style="font-size:0.78rem;color:var(--danger);background:var(--danger-bg);padding:6px 10px;border-radius:6px;border-left:3px solid var(--danger);">
+                <i class="fas fa-times-circle me-1"></i>Invalid account format
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Amount</label>
+            <div class="input-group amount-input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" name="amount" id="transferAmount" class="form-control" placeholder="0.00" min="0.01" step="0.01" required>
+            </div>
+            <div class="d-none mt-2" id="availableLine" style="font-size:0.78rem;color:var(--text-muted);">
+              Available: <strong id="availableBal" style="color:var(--navy);"></strong>
+            </div>
+            <div class="alert alert-danger py-2 mt-2 d-none" id="insufficientMsg" style="font-size:0.82rem;">
+              <i class="fas fa-exclamation-triangle me-1"></i>Insufficient funds.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Reference <span style="text-transform:none;letter-spacing:0;font-size:0.78rem;font-weight:400;color:var(--text-muted);">(optional)</span></label>
+            <input type="text" name="description" class="form-control" placeholder="e.g. Rent, Invoice #123..." maxlength="200">
+          </div>
+
+          <!-- Summary card -->
+          <div class="card d-none mb-4" id="transferSummary" style="background:var(--surface-2)!important;border-color:var(--gold-light)!important;">
+            <div class="card-body p-3">
+              <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px;">Transfer Summary</div>
+              <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--text-muted);">From</span>
+                <span class="font-monospace fw-semibold" id="sumFrom">-</span>
+              </div>
+              <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--text-muted);">To</span>
+                <span class="font-monospace fw-semibold" id="sumTo">-</span>
+              </div>
+              <div class="d-flex justify-content-between" style="font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Amount</span>
+                <span class="fw-bold" style="color:var(--navy);font-family:'Playfair Display',serif;" id="sumAmount">-</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 btn-submit mb-2" id="submitBtn">
+            <i class="fas fa-paper-plane me-2"></i>Send Transfer
+          </button>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const fromSel = document.getElementById('fromAccount');
+const amtInput = document.getElementById('transferAmount');
+const recipInput = document.getElementById('recipientAccount');
+const submitBtn = document.getElementById('submitBtn');
+
+fromSel.addEventListener('change', function() {
+  const sel = this.options[this.selectedIndex];
+  const avail = document.getElementById('availableLine');
+  if (sel.dataset.balance !== undefined) {
+    document.getElementById('availableBal').textContent = '$' + parseFloat(sel.dataset.balance).toLocaleString('en-US',{minimumFractionDigits:2});
+    avail.classList.remove('d-none');
+  }
+  updateSummary(); checkFunds();
+});
+
+amtInput.addEventListener('input', () => { updateSummary(); checkFunds(); });
+recipInput.addEventListener('input', updateSummary);
+
+function checkFunds() {
+  const sel = fromSel.options[fromSel.selectedIndex];
+  const amt = parseFloat(amtInput.value) || 0;
+  const insuf = document.getElementById('insufficientMsg');
+  if (sel && sel.dataset.balance !== undefined) {
+    const bal = parseFloat(sel.dataset.balance);
+    if (amt > 0 && amt > bal) { insuf.classList.remove('d-none'); submitBtn.disabled = true; }
+    else { insuf.classList.add('d-none'); submitBtn.disabled = false; }
+  }
+}
+
+function updateSummary() {
+  const sel = fromSel.options[fromSel.selectedIndex];
+  const amt = parseFloat(amtInput.value) || 0;
+  const to = recipInput.value.trim();
+  const summary = document.getElementById('transferSummary');
+  if (sel && sel.value) {
+    document.getElementById('sumFrom').textContent = sel.dataset.num || '-';
+    document.getElementById('sumTo').textContent = to || '-';
+    document.getElementById('sumAmount').textContent = amt > 0 ? '$' + amt.toLocaleString('en-US',{minimumFractionDigits:2}) : '-';
+    summary.classList.remove('d-none');
+  }
+}
+
+document.getElementById('verifyBtn').addEventListener('click', function() {
+  const num = recipInput.value.trim();
+  const info = document.getElementById('recipientInfo');
+  const err = document.getElementById('recipientError');
+  if (num.startsWith('ACC') && num.length >= 13) { info.classList.remove('d-none'); err.classList.add('d-none'); }
+  else { err.classList.remove('d-none'); info.classList.add('d-none'); }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h2>Good {% if now().hour < 12 %}Morning{% elif now().hour < 17 %}Afternoon{% else %}Evening{% endif %}, {{ user['full_name'].split()[0] }}</h2>
+  <hr class="gold-rule">
+  <p class="mt-2">Here's your financial overview for today.</p>
+</div>
+
+<!-- STAT CARDS -->
+<div class="row g-4 mb-4">
+  <div class="col-sm-6 col-xl-3 fade-in-up">
+    <div class="stat-card card p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div class="stat-label">Total Balance</div>
+          <div class="stat-value">${{ '{:,.2f}'.format(total_balance) }}</div>
+        </div>
+        <div class="stat-icon stat-icon-gold"><i class="fas fa-dollar-sign"></i></div>
+      </div>
+      <span class="stat-change up"><i class="fas fa-arrow-up"></i>Across all accounts</span>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3 fade-in-up">
+    <div class="stat-card card p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div class="stat-label">My Accounts</div>
+          <div class="stat-value">{{ accounts|length }}</div>
+        </div>
+        <div class="stat-icon stat-icon-primary"><i class="fas fa-wallet"></i></div>
+      </div>
+      <span class="stat-change up"><i class="fas fa-check"></i>All active</span>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3 fade-in-up">
+    <div class="stat-card card p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div class="stat-label">Member Since</div>
+          <div class="stat-value" style="font-size:1.4rem;">{{ user['created_at']|dateformat('%b %Y') }}</div>
+        </div>
+        <div class="stat-icon stat-icon-info"><i class="fas fa-calendar-check"></i></div>
+      </div>
+      <span class="stat-change up"><i class="fas fa-star"></i>Premium Member</span>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3 fade-in-up">
+    <div class="stat-card card p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div class="stat-label">Recent Txns</div>
+          <div class="stat-value">{{ recent_txns|length }}</div>
+        </div>
+        <div class="stat-icon stat-icon-success"><i class="fas fa-receipt"></i></div>
+      </div>
+      <span class="stat-change up"><i class="fas fa-clock"></i>Last 5 shown</span>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Accounts Panel -->
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">My Accounts</h5>
+        <a href="{{ url_for('accounts') }}" class="btn btn-sm btn-outline-primary">Manage</a>
+      </div>
+      <div class="card-body px-3 py-3">
+        {% for account in accounts %}
+        <div class="account-pill d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="account-type-icon {{ 'savings-icon' if account['account_type'] == 'savings' else 'checking-icon' }}">
+              <i class="fas {{ 'fa-piggy-bank' if account['account_type'] == 'savings' else 'fa-credit-card' }}"></i>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;text-transform:capitalize;">{{ account['account_type'] }}</div>
+              <div class="font-monospace" style="font-size:0.72rem;color:var(--text-muted);">{{ account['account_number'] }}</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700;font-size:0.95rem;font-family:'Playfair Display',serif;">${{ '{:,.2f}'.format(account['balance']) }}</div>
+          </div>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-wallet" style="font-size:2rem;color:var(--text-light);margin-bottom:8px;display:block;"></i>
+          <p style="color:var(--text-muted);font-size:0.85rem;">No accounts found</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div class="col-lg-7">
+    <!-- Quick Actions -->
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0">Quick Actions</h5></div>
+      <div class="card-body px-3 py-3">
+        <div class="row g-3">
+          <div class="col-4">
+            <a href="{{ url_for('deposit') }}" class="quick-action-btn">
+              <div class="quick-icon text-success"><i class="fas fa-arrow-down"></i></div>
+              <div style="font-size:0.82rem;font-weight:600;">Deposit</div>
+            </a>
+          </div>
+          <div class="col-4">
+            <a href="{{ url_for('withdraw') }}" class="quick-action-btn">
+              <div class="quick-icon text-danger"><i class="fas fa-arrow-up"></i></div>
+              <div style="font-size:0.82rem;font-weight:600;">Withdraw</div>
+            </a>
+          </div>
+          <div class="col-4">
+            <a href="{{ url_for('transfer') }}" class="quick-action-btn">
+              <div class="quick-icon" style="color:var(--navy);"><i class="fas fa-right-left"></i></div>
+              <div style="font-size:0.82rem;font-weight:600;">Transfer</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Transactions</h5>
+        <a href="{{ url_for('transactions') }}" class="btn btn-sm btn-outline-primary">View All</a>
+      </div>
+      <div class="card-body px-3 py-2">
+        {% for txn in recent_txns %}
+        <div class="txn-row">
+          <div class="d-flex align-items-center gap-3">
+            <div class="txn-icon {{ 'txn-deposit' if txn['type'] == 'deposit' else 'txn-withdraw' if txn['type'] == 'withdraw' else 'txn-transfer' }}">
+              <i class="fas {{ 'fa-arrow-down' if txn['type'] == 'deposit' else 'fa-arrow-up' if txn['type'] == 'withdraw' else 'fa-right-left' }}"></i>
+            </div>
+            <div>
+              <div class="txn-label">{{ txn['type']|capitalize }}</div>
+              <div class="txn-time">{{ txn['created_at']|dateformat('%b %d, %I:%M %p') }}</div>
+            </div>
+          </div>
+          <div class="txn-amount {{ 'credit' if txn['type'] == 'deposit' else 'debit' }}">
+            {{ '+' if txn['type'] == 'deposit' else '-' }}${{ '{:,.2f}'.format(txn['amount']) }}
+          </div>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-receipt" style="font-size:2rem;color:var(--text-light);margin-bottom:8px;display:block;"></i>
+          <p style="color:var(--text-muted);font-size:0.85rem;">No transactions yet</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

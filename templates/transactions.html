@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Transactions{% endblock %}
+{% block breadcrumb %}Transaction History{% endblock %}
+{% block content %}
+
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+  <div>
+    <h2>Transaction History</h2>
+    <hr class="gold-rule">
+    <p class="mt-2">A complete record of all your account activity.</p>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+  <div class="card-body p-4">
+    <form method="GET" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Account</label>
+        <select name="account_id" class="form-select" onchange="this.form.submit()">
+          <option value="">All Accounts</option>
+          {% for account in accounts %}
+          <option value="{{ account['id'] }}" {{ 'selected' if account_filter == account['id'] }}>
+            {{ account['account_type']|capitalize }} &mdash; {{ account['account_number'] }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Transaction Type</label>
+        <select name="type" class="form-select" onchange="this.form.submit()">
+          <option value="">All Types</option>
+          <option value="deposit" {{ 'selected' if type_filter == 'deposit' }}>Deposit</option>
+          <option value="withdraw" {{ 'selected' if type_filter == 'withdraw' }}>Withdrawal</option>
+          <option value="transfer" {{ 'selected' if type_filter == 'transfer' }}>Transfer</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" style="visibility:hidden;">Action</label>
+        <a href="{{ url_for('transactions') }}" class="btn btn-outline-secondary w-100">
+          <i class="fas fa-rotate-left me-1"></i>Clear Filters
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th class="ps-4">Type</th>
+            <th>Description</th>
+            <th>Account</th>
+            <th>Amount</th>
+            <th>Balance After</th>
+            <th class="pe-4">Date & Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for txn in txns.items %}
+          <tr>
+            <td class="ps-4">
+              <span class="txn-badge {{ txn['type'] }}">
+                <i class="fas {{ 'fa-arrow-down' if txn['type'] == 'deposit' else 'fa-arrow-up' if txn['type'] == 'withdraw' else 'fa-right-left' }}"></i>
+                {{ txn['type']|capitalize }}
+              </span>
+            </td>
+            <td>
+              <div style="font-size:0.85rem;color:var(--text-secondary);">{{ txn['description'] or '&mdash;' }}</div>
+              {% if txn['recipient_account'] %}
+              <div class="font-monospace mt-1" style="font-size:0.72rem;color:var(--text-muted);">To: {{ txn['recipient_account'] }}</div>
+              {% endif %}
+            </td>
+            <td><span class="font-monospace" style="font-size:0.78rem;color:var(--text-muted);">{{ txn['acct_num'] }}</span></td>
+            <td>
+              <span style="font-weight:700;font-size:0.9rem;color:{{ 'var(--success)' if txn['type'] == 'deposit' else 'var(--danger)' }};">
+                {{ '+' if txn['type'] == 'deposit' else '-' }}${{ '{:,.2f}'.format(txn['amount']) }}
+              </span>
+            </td>
+            <td style="font-size:0.85rem;color:var(--text-muted);">${{ '{:,.2f}'.format(txn['balance_after']) }}</td>
+            <td class="pe-4" style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap;">{{ txn['created_at']|dateformat('%b %d, %Y %I:%M %p') }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center py-5">
+              <i class="fas fa-receipt d-block mb-3" style="font-size:2.5rem;color:var(--text-light);"></i>
+              <p style="color:var(--text-muted);font-size:0.88rem;">No transactions found matching your filters.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% if txns.pages > 1 %}
+  <div class="card-footer px-4 py-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Showing {{ txns.items|length }} of {{ txns.total }} transactions</p>
+      <nav>
+        <ul class="pagination mb-0">
+          {% if txns.has_prev %}<li class="page-item"><a class="page-link" href="?page={{ txns.prev_num }}{% if account_filter %}&account_id={{ account_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}"><i class="fas fa-chevron-left" style="font-size:0.7rem;"></i></a></li>{% endif %}
+          {% for p in txns.iter_pages(left_edge=1,right_edge=1,left_current=2,right_current=2) %}
+            {% if p %}
+            <li class="page-item {{ 'active' if p == txns.page }}"><a class="page-link" href="?page={{ p }}{% if account_filter %}&account_id={{ account_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">{{ p }}</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            {% endif %}
+          {% endfor %}
+          {% if txns.has_next %}<li class="page-item"><a class="page-link" href="?page={{ txns.next_num }}{% if account_filter %}&account_id={{ account_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i></a></li>{% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
